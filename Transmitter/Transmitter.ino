@@ -13,6 +13,7 @@
 
 // This is the address used to send/receive
 // const byte rxAddr[6] = "00001";
+const byte address[6] = "00001"; // Address
 
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
 
@@ -24,6 +25,7 @@ Data_Package data; //Create a variable with the above structure
 
 uint8_t USE_SERIAL = 1;
 
+// SPI: 10 (SS), 11 (MOSI), 12 (MISO), 13 (SCK). 
 void setup() {
 
   if( USE_SERIAL ){
@@ -52,6 +54,7 @@ void setup() {
   // // Stop listening, so we can send!
   // radio.stopListening();
 
+  /*
   radio.setPALevel( RF24_PA_MIN ); // RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH, RF24_PA_MAX
   radio.setDataRate( RF24_250KBPS ); // RF24_250KBPS, RF24_1MBPS, RF24_2MBPS
   radio.setChannel( 110 );
@@ -62,6 +65,13 @@ void setup() {
   radio.stopListening();
 
   setInitialPacketData();
+  */
+
+
+  radio.openWritingPipe( address );
+  radio.setAutoAck( false );
+  radio.setDataRate( RF24_250KBPS );
+  radio.setPALevel( RF24_PA_LOW );
 
   if( USE_SERIAL ){
     // And cruically print the details
@@ -79,7 +89,7 @@ void loop() {
   // Serial.println( (++cc ) );
   radio.write(&data, sizeof(Data_Package));
   // Wait a short while before sending the other one
-  delay(500);
+  delay( 500 );
 
   if( USE_SERIAL ){
     Serial.print(" data.i32_0: => ");
