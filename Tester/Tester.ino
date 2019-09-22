@@ -17,9 +17,8 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 void setup() 
 {
-  // Start Serial
+  while (!Serial);
   Serial.begin(9600);
-  while(!Serial);
   
   // Saying hello to you
   Serial.println("NRF24L01P test Script starting...");

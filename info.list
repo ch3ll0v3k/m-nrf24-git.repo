@@ -1,0 +1,6 @@
+// RX_ADDR_P0-1   = 0x3130303030 0xe8e8f0f0e1
+// RX_ADDR_P2-5   = 0xc3 0xc4 0xc5 0xc6
+// TX_ADDR        = 0x3130303030
+
+
+// http://arduino-info.wikispaces.com/Nrf24L01-Poor+Man%27s+2.4+GHz+Scanner
