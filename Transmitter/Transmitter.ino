@@ -23,9 +23,10 @@
 
 // This is the address used to send/receive
 // const byte rxAddr[6] = "00001";
-const byte address[6] = "00001"; // Address
+// const byte address[6] = "00001"; // Address
 
-const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
+const byte address[5] = {'R','x','A','A','A'};
+
 
 // Create a Radio
 RF24 radio(CE_PIN, CSN_PIN); // , SPI_CLOCK_DIV2); 
@@ -79,10 +80,14 @@ void setup() {
   radio.begin();
   delay(2);
   // radio.setChannel( 110 );
-  radio.setAutoAck( false );
-  radio.setDataRate( RF24_250KBPS );
-  radio.setPALevel( RF24_PA_MIN );
   radio.openWritingPipe( address );
+  radio.setAutoAck( false );
+  radio.setDataRate( RF24_250KBPS);
+  radio.setPALevel( RF24_PA_LOW );
+  // radio.setPayloadSize(sizeof(Data_Package));
+
+  //Set module as transmitter
+  radio.stopListening();
 
   delay(2);
   radio.printDetails();
@@ -131,7 +136,7 @@ void loop() {
   }
   */
 
-  delay( 500 );
+  delay( 250 );
 
 }
 

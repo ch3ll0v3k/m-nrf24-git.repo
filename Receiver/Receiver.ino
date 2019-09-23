@@ -17,11 +17,12 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 // The tx/rx address
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
-const byte address[6] = "00001";
+// const byte address[6] = "00001";
+const byte address[5] = {'R','x','A','A','A'};
 
 Data_Package data; //Create a variable with the above structure
 
-Servo ESC;
+// Servo ESC;
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -68,15 +69,20 @@ void setup(){
   */
 
   radio.begin();
-  delay(2);
-  radio.setChannel( 110 );
-  radio.openReadingPipe( 0, address );
+  // delay(2);
+  // radio.setChannel( 110 );
+  // radio.openReadingPipe( 1, address );
   radio.setAutoAck( false );
-  radio.setDataRate( RF24_250KBPS );
+  radio.setDataRate( RF24_250KBPS);
   radio.setPALevel( RF24_PA_LOW );
   // radio.setCRCLength( RF24_CRC_8 );
+  // radio.setPayloadSize(sizeof(Data_Package));
+
+  // radio.openWritingPipe( address );
+  radio.openReadingPipe( 1, address );
+
   radio.startListening(); //  Set the module as receiver
-  delay(10);
+  delay( 2 );
   radio.printDetails();
 
   setInitialPacketData();
@@ -151,7 +157,8 @@ void loop(){
   if( radio.available()) {
     radio.read(&data, sizeof(Data_Package));
 
-    Serial.println( data.j_ly );
+    // Serial.println( data.j_ly );
+    Serial.println( data.i32_0 );
     // ESC.write( data.j_ly );
 
     // Adjust values => 
