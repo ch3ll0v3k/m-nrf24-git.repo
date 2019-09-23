@@ -3,7 +3,10 @@
 #include <RF24.h>
 #include <nRF24L01.h>
 #include <printf.h>
+#include <Servo.h>
+
 #include "Receiver.h"
+// #include "ESC.h"
 
 // define the pins
 #define CE_PIN 9
@@ -14,13 +17,16 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 // The tx/rx address
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
-// const byte pipe[6] = "00001";
 const byte address[6] = "00001";
 
 Data_Package data; //Create a variable with the above structure
 
+Servo ESC;
+
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
+
+uint8_t radioParamsInited = 0;
 
 /*
   Check the reading and writing pipe addresses.
@@ -29,6 +35,12 @@ unsigned long currentTime = 0;
   Check that the transmitter (TX) address is the same as the
   receiver (RX) pipe address.
 */
+
+int8_t _speed = 0;
+
+// ESC myESC (6, 1000, 2000, 500);   // ESC_Name (ESC PIN, Minimum Value, Maximum Value, Arm Value)
+
+int32_t getSerialVal( String req );
 
 void setup(){
 
@@ -56,42 +68,132 @@ void setup(){
   */
 
   radio.begin();
-  radio.openReadingPipe(0, address);
-  radio.setAutoAck(false);
-  radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
+  delay(2);
+  radio.setChannel( 110 );
+  radio.openReadingPipe( 0, address );
+  radio.setAutoAck( false );
+  radio.setDataRate( RF24_250KBPS );
+  radio.setPALevel( RF24_PA_LOW );
+  // radio.setCRCLength( RF24_CRC_8 );
   radio.startListening(); //  Set the module as receiver
+  delay(10);
+  radio.printDetails();
 
   setInitialPacketData();
+
+
+  /*  
+  ESC.attach( 6 );
+  ESC.write(0);
+
+  // delay(1000);
+
+  ESC.write(179); // HI
+  delay(5000);
+
+  ESC.write(1); // LO
+  delay(5000);
+
+
+  ESC.write(90); // LO
+  delay(1000);
+
+  Serial.println(" write: SPEED ");
+  ESC.write(120);
+
+  Serial.println(" Ready ... ");
+  */
+
+  /*
+    ESC.attach( 6 );
+    ESC.write( 800 );
+
+    // getSerialVal(" press to brake");
+
+    // ESC.writeMicroseconds(2400);
+    // delay(1500);
+    // ESC.writeMicroseconds(800);
+    // delay(1500);
+
+    getSerialVal(" press any key to start");
+    */
+
+   /*
+
+   int32_t brakeVal = getSerialVal(" brake");
+   ESC.write( brakeVal );
+
+   int32_t throttleVal = getSerialVal(" throttle");
+   ESC.write( throttleVal );
+
+   int32_t lowVal = getSerialVal(" lowVal ");
+   ESC.write( lowVal );
+
+   getSerialVal(" end ...");
+
+  // myESC.calib(); // Calibration of the Max and Min value the ESC is expecting
+  // myESC.stop(); 
+  */
+
+  // radio.printDetails();
+  // getSerialVal(" Press any key to start");
 
 }
 
 void loop(){
-  if (radio.available()) {
+
+    //return;
+
+   // int32_t loopVal= getSerialVal(" loopVal ");
+   // ESC.write( loopVal );
+   // return;
+ 
+  if( radio.available()) {
     radio.read(&data, sizeof(Data_Package));
-    Serial.print(" got data.i32_0: => "); Serial.print(data.i32_0); 
-    Serial.println();
+
+    Serial.println( data.j_ly );
+    // ESC.write( data.j_ly );
+
+    // Adjust values => 
+    // radioParamsInited = 1;
   }
+
+  if ( radioParamsInited ){
+    /*
+    Serial.print( 210 ); Serial.print(","); 
+    Serial.print( data.j_lx ); Serial.print(","); 
+    Serial.print( data.j_ly ); Serial.print(","); 
+    Serial.print( data.j_rx ); Serial.print(","); 
+    Serial.print( data.j_ry ); Serial.print(","); 
+    Serial.print( -210 ); Serial.print(","); 
+    Serial.println();
+    */
+
+ 
+  }
+  // Serial.println( ++_speed );
+  // ESC.write( _speed ); // SPEED
+
+  // delay(50);
 }
 
 void setInitialPacketData(){
 
   data.i32_0 = 0;
-  data.i32_1 = 0;
-  data.i32_2 = 0;
-  data.i32_3 = 0;
-  data.i32_4 = 0;
-  data.i32_5 = 0;
-  data.i32_6 = 0;
-  data.i32_7 = 0;
+  data.j_lx = 0;
+  data.j_ly = 0;
+  data.j_rx = 0;
+  data.j_ry = 0;
 
-  // data.i32_8 = 0;
-  // data.i32_9 = 0;
-  // data.i32_a = 0;
-  // data.i32_b = 0;
-  // data.i32_c = 0;
-  // data.i32_d = 0;
-  // data.i32_e = 0;
-  // data.i32_f = 0;
+}
 
+
+int32_t getSerialVal( String req ){
+
+  Serial.println( req);
+  while( !Serial.available() );
+
+  int32_t res = Serial.parseInt();
+  Serial.print(" Got: "); Serial.println( res );
+  return res; 
 }
