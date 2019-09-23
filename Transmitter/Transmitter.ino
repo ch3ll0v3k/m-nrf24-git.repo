@@ -79,11 +79,11 @@ void setup() {
 
   radio.begin();
   delay(2);
-  // radio.setChannel( 110 );
+  radio.setChannel( 120 );
   radio.openWritingPipe( address );
   radio.setAutoAck( false );
   radio.setDataRate( RF24_250KBPS);
-  radio.setPALevel( RF24_PA_LOW );
+  radio.setPALevel( RF24_PA_HIGH );
   // radio.setPayloadSize(sizeof(Data_Package));
 
   //Set module as transmitter
@@ -108,16 +108,23 @@ void loop() {
 
   // data.j_ly = (2500 +750) - map( analogRead( J_LY ), 300, 700, 750, 2500);
 
-  /*
-  data.j_ly = map( analogRead( J_LY ), 300, 700, 0, 400) - 200;
-  data.j_lx = map( analogRead( J_LX ), 300, 700, 0, 400) - 200;
+  data.j_ly = (2400 +800) -map( analogRead( J_LY ), 300, 700, 800, 2400);
+  data.j_lx = map( analogRead( J_LX ), 300, 700, 0, 400);
 
-  data.j_ry = map( analogRead( J_RY ), 300, 700, 0, 400) - 200;
-  data.j_rx = map( analogRead( J_RX ), 300, 700, 0, 400) - 200;
-  */
+  data.j_ry = ( 400 +0 ) - map( analogRead( J_RY ), 300, 700, 0, 400);
+  data.j_rx = map( analogRead( J_RX ), 300, 700, 0, 400);
 
   Serial.println( data.i32_0 );
   radio.write(&data, sizeof(Data_Package));
+
+
+  Serial.print( data.j_lx ); Serial.print(","); 
+  Serial.print( data.j_ly ); Serial.print(","); 
+
+  Serial.print( data.j_rx ); Serial.print(","); 
+  Serial.print( data.j_ry ); Serial.print(","); 
+
+  Serial.println();
 
   /*
   if( USE_SERIAL ){
@@ -136,7 +143,7 @@ void loop() {
   }
   */
 
-  delay( 250 );
+  delay( 25 );
 
 }
 
@@ -149,3 +156,38 @@ void setInitialPacketData(){
   data.j_ry = 0;
 
 }
+
+
+// STATUS           = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
+// RX_ADDR_P0-1     = 0x3130303030 0xc2c2c2c2c2
+// RX_ADDR_P2-5     = 0xc3 0xc4 0xc5 0xc6
+// TX_ADDR          = 0x3130303030
+// RX_PW_P0-6       = 0x20 0x00 0x00 0x00 0x00 0x00
+// EN_AA            = 0x00
+// EN_RXADDR        = 0x03
+// RF_CH            = 0x6e
+// RF_SETUP         = 0x25
+// CONFIG           = 0x0e
+// DYNPD/FEATURE    = 0x00 0x00
+// Data Rate        = 250KBPS
+// Model            = nRF24L01+
+// CRC Length       = 16 bits
+// PA Power         = PA_HIGH
+
+
+// Bad module TX => 
+// STATUS           = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
+// RX_ADDR_P0-1     = 0x3130303030 0xc2c2c2c2c2
+// RX_ADDR_P2-5     = 0xc3 0xc4 0xc5 0xc6
+// TX_ADDR          = 0x3130303030
+// RX_PW_P0-6       = 0x20 0x00 0x00 0x00 0x00 0x00
+// EN_AA            = 0x00
+// EN_RXADDR        = 0x03
+// RF_CH            = 0x6e
+// RF_SETUP         = 0x25
+// CONFIG           = 0x0e
+// DYNPD/FEATURE    = 0x00 0x00
+// Data Rate        = 250KBPS
+// Model            = nRF24L01
+// CRC Length       = 16 bits
+// PA Power         = PA_HIGH

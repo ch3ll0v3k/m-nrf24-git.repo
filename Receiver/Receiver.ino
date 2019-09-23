@@ -22,7 +22,7 @@ const byte address[5] = {'R','x','A','A','A'};
 
 Data_Package data; //Create a variable with the above structure
 
-// Servo ESC;
+Servo ESC;
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -48,7 +48,7 @@ void setup(){
   Serial.begin(9600);
   printf_begin();
   // Start the serial
-  // pinMode(CSN_PIN, OUTPUT);
+  pinMode(CE_PIN, OUTPUT);
   while (!Serial);
   Serial.println("NRF24L01P Receiver Starting...");
 
@@ -70,11 +70,11 @@ void setup(){
 
   radio.begin();
   // delay(2);
-  // radio.setChannel( 110 );
+  radio.setChannel( 120 );
   // radio.openReadingPipe( 1, address );
   radio.setAutoAck( false );
   radio.setDataRate( RF24_250KBPS);
-  radio.setPALevel( RF24_PA_LOW );
+  radio.setPALevel( RF24_PA_HIGH );
   // radio.setCRCLength( RF24_CRC_8 );
   // radio.setPayloadSize(sizeof(Data_Package));
 
@@ -88,61 +88,19 @@ void setup(){
   setInitialPacketData();
 
 
-  /*  
+
   ESC.attach( 6 );
-  ESC.write(0);
-
-  // delay(1000);
-
-  ESC.write(179); // HI
-  delay(5000);
-
-  ESC.write(1); // LO
-  delay(5000);
+  // ESC.write( 800 );
 
 
-  ESC.write(90); // LO
-  delay(1000);
+  uint32_t v0 = getSerialVal(" v0 => ");
+  ESC.write( v0 );
 
-  Serial.println(" write: SPEED ");
-  ESC.write(120);
+  uint32_t v1 = getSerialVal(" v1 => ");
+  ESC.write( v1 );
 
-  Serial.println(" Ready ... ");
-  */
 
-  /*
-    ESC.attach( 6 );
-    ESC.write( 800 );
-
-    // getSerialVal(" press to brake");
-
-    // ESC.writeMicroseconds(2400);
-    // delay(1500);
-    // ESC.writeMicroseconds(800);
-    // delay(1500);
-
-    getSerialVal(" press any key to start");
-    */
-
-   /*
-
-   int32_t brakeVal = getSerialVal(" brake");
-   ESC.write( brakeVal );
-
-   int32_t throttleVal = getSerialVal(" throttle");
-   ESC.write( throttleVal );
-
-   int32_t lowVal = getSerialVal(" lowVal ");
-   ESC.write( lowVal );
-
-   getSerialVal(" end ...");
-
-  // myESC.calib(); // Calibration of the Max and Min value the ESC is expecting
-  // myESC.stop(); 
-  */
-
-  // radio.printDetails();
-  // getSerialVal(" Press any key to start");
+  getSerialVal(" Press any key to start");
 
 }
 
@@ -158,26 +116,25 @@ void loop(){
     radio.read(&data, sizeof(Data_Package));
 
     // Serial.println( data.j_ly );
-    Serial.println( data.i32_0 );
-    // ESC.write( data.j_ly );
+    // Serial.println( data.i32_0 );
+    ESC.write( data.j_ly );
+    Serial.println( data.j_ly );
 
     // Adjust values => 
     // radioParamsInited = 1;
-  }
 
-  if ( radioParamsInited ){
-    /*
-    Serial.print( 210 ); Serial.print(","); 
-    Serial.print( data.j_lx ); Serial.print(","); 
-    Serial.print( data.j_ly ); Serial.print(","); 
-    Serial.print( data.j_rx ); Serial.print(","); 
-    Serial.print( data.j_ry ); Serial.print(","); 
-    Serial.print( -210 ); Serial.print(","); 
-    Serial.println();
-    */
+    // Serial.print( 210 ); Serial.print(","); 
+    // Serial.print( data.i32_0 ); Serial.print(","); 
+    // Serial.print( data.j_lx ); Serial.print(","); 
+    // Serial.print( data.j_ly ); Serial.print(","); 
+    // Serial.print( data.j_rx ); Serial.print(","); 
+    // Serial.print( data.j_ry ); Serial.print(","); 
+    // Serial.print( -210 ); Serial.print(","); 
+    // Serial.println();
+  
+  }
 
  
-  }
   // Serial.println( ++_speed );
   // ESC.write( _speed ); // SPEED
 
@@ -188,7 +145,7 @@ void setInitialPacketData(){
 
   data.i32_0 = 0;
   data.j_lx = 0;
-  data.j_ly = 0;
+  data.j_ly = 800;
   data.j_rx = 0;
   data.j_ry = 0;
 
